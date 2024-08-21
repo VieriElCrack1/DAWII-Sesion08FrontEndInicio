@@ -10,4 +10,3 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(), provideAnimationsAsync()
   ]
 };
-//git remote add origin https://github.com/VieriElCrack1/DAWII-Sesion08FrontEndInicio.git
