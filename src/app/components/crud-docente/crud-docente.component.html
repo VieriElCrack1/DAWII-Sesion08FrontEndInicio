@@ -1,1 +1,233 @@
-<p>crud-docente works!</p>
+<div class="container">
+    <h5>CRUD DOCENTE</h5>
+
+    <div class="col-md-23" style="margin-top: 3%">
+
+        <div class="row" style="height: 80px">
+            <div class="col-md-4">
+                <input [(ngModel)]="nombre" class="form-control" id="id_txt_filtro" name="filtro"
+                    placeholder="Ingrese el nombre" type="text" maxlength="30" />
+            </div>
+            <div class="col-md-2">
+                <button type="button" (click)="consultaDocente()" class="btn btn-primary btn-sm" id="id_btn_filtrar"
+                    style="width: 150px">Filtrar</button>
+            </div>
+            <div class="col-md-2">
+                <button type="button" data-toggle='modal' data-target="#idModalRegistrar" class='btn btn-primary btn-sm registrar'
+                    style="width: 150px" (click)="abrirModal()">Registrar</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th style="width: 5%">ID</th>
+                        <th style="width: 30%">Nombre</th>
+                        <th style="width: 10%">DNI</th>
+                        <th style="width: 10%">Estado</th>
+                        <th style="width: 31%">Ubigeo</th>
+                        <th style="width: 7%"></th>
+                        <th style="width: 7%"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (d of docentes; track $index) {
+                    <tr>
+                        <td>{{d.idDocente}}</td>
+                        <td>{{d.nombre}}</td>
+                        <td>{{d.dni}}</td>
+                        <td>{{d.estado==1?"Activo":"Inactivo"}}</td>
+                        <td>{{d.ubigeo?.departamento}} - {{d.ubigeo?.distrito}} - {{d.ubigeo?.provincia}}</td>
+                        <td>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" role="switch" class="form-check-input" id="idEstado_{{d.idDocente}}" name="estado" [checked]="d.estado==1?true:false" (change)="cambiaEstado(d)" />     
+                                <label class="form-check-label" for="idEstado_{{d.idDocente}}"></label>
+                            </div> 
+                        </td>
+                        <td>
+                            <button (click)="buscar(d)" type="button" style="width: 90px" class="btn btn-success btn-sm"  data-toggle="modal" data-target="#idModalActualizar">Editar</button>
+                        </td>
+                        <td>
+                            <button (click)="eliminar(d)" type="button" style="width: 90px" class="btn btn-danger btn-sm"  data-toggle="modal" data-target="#idModalActualizar">Eliminar</button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!--REGISTRAR-->
+    <div class="modal fade" id="idModalRegistrar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog" style="max-width: 70%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Registro de Docente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="content">
+                        <div class="submit-form">
+                            <div class="row">
+                                <div class="col-lg-10">
+                                    <label for="id_reg_nombre">Nombre</label>
+                                    <input type="text" [(ngModel)]="docente.nombre" placeholder="Ingrese el nombre"
+                                        class="form-control" name="nombre" id="id_reg_nombre" />
+                                </div>
+
+                                <div class="col-lg-2">
+                                    <label for="id_reg_dni">DNI</label>
+                                    <input [(ngModel)]="docente.dni" type="text" placeholder="Ingrese DNI"
+                                        class="form-control" name="dni" id="id_reg_dni" maxlength="8" />
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top: 2%">
+                                <div class="col-lg-4">
+                                    <label for="id_reg_departamento">Departamento</label>
+                                    <select [(ngModel)]="docente.ubigeo!.departamento" (change)="cargaProvincia()"
+                                        id="id_reg_departamento" name="departamento" class="form-control">
+                                        <option value="-1"> [Seleccione] </option>
+                                        @for (dep of departamento; track $index) {
+                                            <option value="{{dep}}">
+                                                {{dep}}
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-lg-4">
+                                    <label for="id_reg_provincia">Provincia</label>
+                                    <select [(ngModel)]="docente.ubigeo!.provincia" (change)="cargaDistrito()"
+                                        id="id_reg_provincia" name="provincia" class="form-control">
+                                        <option value="-1"> [Seleccione] </option>
+                                        @for (prov of provincia; track $index) {
+                                            <option value="{{prov}}">
+                                                {{prov}}
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-lg-4 mb-4">
+                                    <label for="id_reg_distrito">Distrito</label>
+                                    <select [(ngModel)]="docente.ubigeo!.idUbigeo" id="id_reg_distrito" name="distrito"
+                                        class="form-control">
+                                        <option value="0">[Seleccione]</option>
+                                        @for (dis of ubigeo; track $index) {
+                                            <option value="{{dis.idUbigeo}}">
+                                                {{dis.distrito}}
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="reset" class="btn btn-secondary">Limpiar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btn_reg_cerrar"
+                            style="width: 100px;">Cerrar</button>
+                            <div class="form-group text-center">
+                                <div class="col-lg-12">
+                                    <button id="id_reg_registra" class="btn btn-success form-control"
+                                        style="width: 100px;" (click)="registrar()">Registrar</button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--ACTUALIZAR-->
+    <div class="modal fade" id="idModalActualizar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="max-width: 80%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Actualización de docente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <form class="content">
+                        <div class="submit-form">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <label for="id_act_nombre">Nombre</label>
+                                    <input type="text" [(ngModel)]="docente.nombre" placeholder="Ingrese el nombre"
+                                        class="form-control" name="nombre" id="id_act_nombre" />
+                                </div>
+                                <div class="col-lg-2">
+                                    <label for="id_act_estado">Estado</label>
+                                    <select id="id_act_estado" [(ngModel)]="docente.estado" name="estado"
+                                        class="form-control">
+                                        <option value="-1"> [Seleccione] </option>
+                                        <option value="1"> Activo </option>
+                                        <option value="0"> Inactivo </option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-2">
+                                    <label for="id_act_dni">DNI</label>
+                                    <input type="text" [(ngModel)]="docente.dni" placeholder="Ingrese DNI"
+                                        class="form-control" name="dni" id="id_act_dni" maxlength="8" />
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top: 5%">
+                                <div class="col-lg-4">
+                                    <label for="id_act_departamento">Departamento</label>
+                                    <select [(ngModel)]="docente.ubigeo!.departamento" (change)="cargaProvincia()"
+                                        id="id_act_departamento" name="departamento" class="form-control">
+                                        <option value="-1"> [Seleccione] </option>
+                                        @for (dep of departamento; track $index) {
+                                            <option value="{{dep}}">
+                                                {{dep}}
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-lg-4">
+                                    <label for="id_act_provincia">Provincia</label>
+                                    <select [(ngModel)]="docente.ubigeo!.provincia" (change)="cargaDistrito()"
+                                        id="id_act_provincia" name="provincia" class="form-control">
+                                        <option value="-1"> [Seleccione] </option>
+                                        @for (prov of provincia; track $index) {
+                                            <option value="{{prov}}">
+                                                {{prov}}
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-lg-4">
+                                    <label for="id_act_distrito">Distrito</label>
+                                    <select [(ngModel)]="docente.ubigeo!.idUbigeo" id="id_act_distrito" name="distrito"
+                                        class="form-control">
+                                        <option value="-1"> [Seleccione] </option>
+                                        @for (dis of ubigeo; track $index) {
+                                            <option value="{{dis.idUbigeo}}">
+                                                {{dis.distrito}}
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="reset" class="btn btn-secondary">Limpiar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                                id="btn_act_cerrar">Cerrar</button>
+                            <div class="form-group text-center">
+                                <div class="col-lg-12">
+                                    <button id="id_act_actualiza"
+                                        class="btn btn-success form-control" (click)="actualizar()" type="button">Actualizar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
